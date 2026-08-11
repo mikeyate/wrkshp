@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard — WRKSHP{% endblock %}
+{% block content %}
+<div class="lbWrap">
+  <div class="lbHead">
+    <h1>Leaderboard</h1>
+    <p>Ranked by submissions, then challenges viewed.</p>
+  </div>
+
+  {% if rows %}
+  <ol class="lbList">
+    {% for r in rows %}
+    <li class="lbRow">
+      <span class="lbRank">#{{ loop.index }}</span>
+      <span class="lbName">{{ r.name }}</span>
+      <span class="lbStats">
+        <span class="lbStat">
+          <strong>{{ r.submissions }}</strong>
+          <span class="lbStatLabel">Submissions</span>
+        </span>
+        <span class="lbStat">
+          <strong>{{ r.views }}</strong>
+          <span class="lbStatLabel">Viewed</span>
+        </span>
+      </span>
+    </li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p class="empty">NO AI REGIONS HAVE LOGGED IN YET.</p>
+  {% endif %}
+</div>
+{% endblock %}

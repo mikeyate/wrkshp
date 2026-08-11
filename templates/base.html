@@ -24,6 +24,7 @@
     <span></span>
     {% endif %}
     <nav class="topnav">
+      <a href="{{ url_for('leaderboard') }}">LEADERBOARD</a>
       {% if session.get('admin') %}
         <a href="{{ url_for('admin_dashboard') }}">DASHBOARD</a>
         <form method="post" action="{{ url_for('admin_logout') }}" class="navLogout">

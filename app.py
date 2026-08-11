@@ -334,6 +334,37 @@ def submit_challenge(slug):
     return redirect(url_for("challenge_detail", slug=slug))
 
 
+@app.route("/leaderboard")
+def leaderboard():
+    db = get_db()
+
+    regions = db.execute("SELECT id, name FROM regions").fetchall()
+
+    view_counts = db.execute(
+        "SELECT region_user_id, COUNT(DISTINCT path) as cnt FROM page_views "
+        "WHERE path LIKE '/challenges/%' AND region_user_id IS NOT NULL "
+        "GROUP BY region_user_id"
+    ).fetchall()
+    views_by_region = {row["region_user_id"]: row["cnt"] for row in view_counts}
+
+    submission_counts = db.execute(
+        "SELECT region_user_id, COUNT(*) as cnt FROM submissions GROUP BY region_user_id"
+    ).fetchall()
+    submissions_by_region = {row["region_user_id"]: row["cnt"] for row in submission_counts}
+
+    rows = [
+        {
+            "name": r["name"],
+            "views": views_by_region.get(r["id"], 0),
+            "submissions": submissions_by_region.get(r["id"], 0),
+        }
+        for r in regions
+    ]
+    rows.sort(key=lambda x: (-x["submissions"], -x["views"], x["name"].lower()))
+
+    return render_template("leaderboard.html", rows=rows)
+
+
 @app.route("/admin")
 def admin_root():
     if is_admin():
