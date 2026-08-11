@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}WRKSHP{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik+Wet+Paint&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  {% if session.get('admin') %}
+    {% set brand_href = url_for('admin_dashboard') %}
+  {% elif session.get('region_id') %}
+    {% set brand_href = url_for('challenge_list') %}
+  {% else %}
+    {% set brand_href = url_for('landing') %}
+  {% endif %}
+  <header class="topbar">
+    {% if request.endpoint != 'landing' %}
+    <a class="brand" href="{{ brand_href }}">WRKSHP</a>
+    {% else %}
+    <span></span>
+    {% endif %}
+    <nav class="topnav">
+      {% if session.get('admin') %}
+        <a href="{{ url_for('admin_dashboard') }}">DASHBOARD</a>
+        <form method="post" action="{{ url_for('admin_logout') }}" class="navLogout">
+          <button type="submit">LOG OUT</button>
+        </form>
+      {% elif session.get('region_id') %}
+        <span class="navUser">{{ session.get('region_label') }}</span>
+        <form method="post" action="{{ url_for('region_logout') }}" class="navLogout">
+          <button type="submit">LOG OUT</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('landing') }}">LOG IN</a>
+      {% endif %}
+      <span class="badge" aria-label="hammer">
+        <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+          <g transform="rotate(-45 12 12)">
+            <rect x="4" y="3" width="14" height="6" rx="1.2" fill="currentColor"/>
+            <rect x="9.5" y="9" width="3" height="12" rx="1.4" fill="currentColor"/>
+          </g>
+        </svg>
+      </span>
+    </nav>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer">
+    <span>WRKSHP &mdash; AI CHALLENGES</span>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Log In — WRKSHP{% endblock %}
+{% block content %}
+<div class="hero" style="background-image: url('{{ url_for('static', filename='img/hero.jpg') }}');">
+  <div class="heroOverlay"></div>
+  <div class="heroContent">
+    <h1 class="heroBrand">WRKSHP</h1>
+    <div class="gate">
+      <div class="gatePanel">
+        <h2>Admin Access</h2>
+        <form class="gateForm" method="post" action="{{ url_for('admin_login') }}">
+          <input type="password" name="code" placeholder="ACCESS CODE" autocomplete="off" required>
+          <button class="btn" type="submit">ENTER</button>
+        </form>
+        {% if admin_error %}<div class="error">{{ admin_error }}</div>{% endif %}
+      </div>
+
+      <div class="gatePanel">
+        <h2>AI Regions</h2>
+        <form class="gateForm" method="post" action="{{ url_for('region_login') }}">
+          <input type="text" name="region" placeholder="LOCATION" autocomplete="off" required>
+          <input type="password" name="code" placeholder="ACCESS CODE" autocomplete="off" required>
+          <button class="btn" type="submit">ENTER</button>
+        </form>
+        {% if region_login_error %}<div class="error">{{ region_login_error }}</div>{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

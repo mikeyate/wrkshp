@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — WRKSHP{% endblock %}
+{% block content %}
+<div class="dashWrap">
+  <div class="dashHead">
+    <h1>ADMIN DASHBOARD</h1>
+  </div>
+
+  <div class="statGrid">
+    <div class="statCard">
+      <div class="num">{{ total_views }}</div>
+      <div class="label">Total Views</div>
+    </div>
+    <div class="statCard">
+      <div class="num">{{ views_today }}</div>
+      <div class="label">Views Today</div>
+    </div>
+    <div class="statCard">
+      <div class="num">{{ unique_paths }}</div>
+      <div class="label">Unique Pages</div>
+    </div>
+    <div class="statCard">
+      <div class="num">{{ active_challenges }}/{{ total_challenges }}</div>
+      <div class="label">Active Challenges</div>
+    </div>
+    <div class="statCard">
+      <div class="num">{{ total_regions }}</div>
+      <div class="label">AI Regions Logged In</div>
+    </div>
+    <div class="statCard">
+      <div class="num">{{ online_now }}</div>
+      <div class="label">Online Now</div>
+    </div>
+  </div>
+
+  <div class="dashSection">
+    <h2>AI Regions Activity</h2>
+    <table class="dataTable">
+      <thead>
+        <tr>
+          <th>Location</th>
+          <th>First Seen</th>
+          <th>Last Active</th>
+          <th>Challenges Viewed</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in regions %}
+        <tr>
+          <td>{{ r['name'] }}</td>
+          <td>{{ r['created_at'][:10] }}</td>
+          <td>{{ r['last_active'][:19] if r['last_active'] else '—' }}</td>
+          <td>{{ challenge_counts.get(r['id'], 0) }}/{{ visible_challenges }}</td>
+          <td>
+            {% if r['id'] in online_ids %}
+            <span class="statusTag active">ONLINE</span>
+            {% else %}
+            <span class="statusTag retired">OFFLINE</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        {% if not regions %}
+        <tr><td colspan="5">No AI Regions have logged in yet.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="dashSection">
+    <h2>Top Challenges</h2>
+    <table class="dataTable">
+      <thead><tr><th>Path</th><th>Hits</th></tr></thead>
+      <tbody>
+        {% for p in top_pages %}
+        <tr><td>{{ p['path'] }}</td><td>{{ p['hits'] }}</td></tr>
+        {% endfor %}
+        {% if not top_pages %}
+        <tr><td colspan="2">No challenge views yet.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="dashSection">
+    <h2>Recent Activity</h2>
+    <table class="dataTable">
+      <thead><tr><th>Path</th><th>Who</th><th>Time (UTC)</th></tr></thead>
+      <tbody>
+        {% for h in recent_hits %}
+        <tr><td>{{ h['path'] }}</td><td>{{ h['actor'] or '—' }}</td><td>{{ h['ts'][:19] }}</td></tr>
+        {% endfor %}
+        {% if not recent_hits %}
+        <tr><td colspan="3">No challenge views yet.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="dashSection">
+    <h2>New Challenge</h2>
+    <form class="newForm" method="post" action="{{ url_for('admin_create_challenge') }}">
+      <div>
+        <label>Title</label>
+        <input type="text" name="title" required>
+      </div>
+      <div>
+        <label>Subtitle</label>
+        <input type="text" name="subtitle">
+      </div>
+      <div>
+        <label>Difficulty</label>
+        <select name="difficulty">
+          <option value="EASY">EASY</option>
+          <option value="MEDIUM">MEDIUM</option>
+          <option value="HARD">HARD</option>
+        </select>
+      </div>
+      <div>
+        <label>Body</label>
+        <textarea name="body" placeholder="One paragraph per line."></textarea>
+      </div>
+      <button class="btn" type="submit">PUBLISH CHALLENGE</button>
+    </form>
+  </div>
+
+  <div class="dashSection">
+    <h2>Manage Challenges</h2>
+    <table class="dataTable">
+      <thead><tr><th>#</th><th>Title</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for c in challenges %}
+        <tr>
+          <td>{{ c['number'] }}</td>
+          <td><a href="{{ url_for('challenge_detail', slug=c['slug']) }}" target="_blank">{{ c['title'] }}</a></td>
+          <td><span class="statusTag {{ c['status'] }}">{{ c['status'] }}</span></td>
+          <td class="rowActions">
+            {% if c['status'] == 'active' %}
+            <form method="post" action="{{ url_for('admin_set_challenge_status', challenge_id=c['id']) }}">
+              <input type="hidden" name="status" value="hidden">
+              <button type="submit">HIDE</button>
+            </form>
+            <form method="post" action="{{ url_for('admin_set_challenge_status', challenge_id=c['id']) }}">
+              <input type="hidden" name="status" value="retired">
+              <button type="submit">RETIRE</button>
+            </form>
+            {% else %}
+            <form method="post" action="{{ url_for('admin_set_challenge_status', challenge_id=c['id']) }}">
+              <input type="hidden" name="status" value="active">
+              <button type="submit">{{ 'UNHIDE' if c['status'] == 'hidden' else 'REACTIVATE' }}</button>
+            </form>
+            {% endif %}
+            <form method="post" action="{{ url_for('admin_delete_challenge', challenge_id=c['id']) }}" onsubmit="return confirm('Delete this challenge permanently?');">
+              <button class="danger" type="submit">DELETE</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

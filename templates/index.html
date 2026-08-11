@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}WRKSHP — AI Challenges{% endblock %}
+{% block content %}
+<ol class="dropList">
+  {% for c in challenges %}
+  {% if c['status'] == 'hidden' %}
+  <li class="dropRow dropRow--hidden">
+    <span class="dropLink">
+      <span class="dropNum">#<br>{{ c['number'] }}</span>
+      <span class="dropTitle redacted">{{ 'X' * 400 }}</span>
+    </span>
+  </li>
+  {% else %}
+  <li class="dropRow">
+    <a class="dropLink" href="{{ url_for('challenge_detail', slug=c['slug']) }}">
+      <span class="dropNum">#<br>{{ c['number'] }}</span>
+      <span class="dropTitle">{{ c['title'] }}</span>
+      {% if c['difficulty'] %}<span class="dropTag">{{ c['difficulty'] }}</span>{% endif %}
+    </a>
+  </li>
+  {% endif %}
+  {% endfor %}
+</ol>
+{% if not challenges %}
+<p class="empty">NO ACTIVE CHALLENGES. CHECK BACK SOON.</p>
+{% endif %}
+{% endblock %}
